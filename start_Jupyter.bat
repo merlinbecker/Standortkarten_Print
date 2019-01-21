@@ -1,0 +1,1 @@
+%cd%\Anaconda\Scripts\jupyter-notebook.exe --notebook-dir=''
