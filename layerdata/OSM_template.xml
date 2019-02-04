@@ -54450,11 +54450,11 @@ ORDER BY z_order asc ) AS building]]></Parameter>
        <Parameter name="table"><![CDATA[(select way,ref,name,highway, case when oneway in
   ('yes','true','1') then 'yes'::text end as oneway
 from planet_osm_line
-where "highway" is not null
+where "highway"='motorway'
+and ref!=''
 and ("name" is not null or "oneway" is not null)
-and ref!=""
 and ref is not null
-order by z_order asc ) as highway_label]]></Parameter>
+order by z_order asc) as highway_label]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="user"><![CDATA[]]></Parameter>
        <Parameter name="id"><![CDATA[highway-label]]></Parameter>
