@@ -128,10 +128,7 @@ def checkDataBase(config,osm_url,databasename):
         #download osm data if not existent
         if not os.path.exists("tempdata"):
             os.makedirs("tempdata")
-        if not os.path.isfile("tempdata/"+os.path.basename(osm_url)):
-            print "downloading OSM file"
-            download_file(osm_url,"tempdata/"+os.path.basename(osm_url))
-            print "Download abgeschlossen"
+        
         #create database
         processcall=config.get("postgres","bin_dir")
         processcall+="/bin/psql -w -U "+config.get("postgres","user")
@@ -169,22 +166,36 @@ def checkDataBase(config,osm_url,databasename):
         processcall+=" -c \"CREATE EXTENSION hstore;\""
         p1 = subprocess.Popen(processcall,shell=True)
         p1.wait()
-
-        #import data
-        processcall=config.get("osm2pgsql","bin_path")
-        processcall+=" -d "+databasename
-        processcall+=" -S "+config.get("osm2pgsql","schema")
-        processcall+=" -k --hstore-match-only -r pbf -s"
-        processcall+=" -H "+config.get("postgres","host")
-        processcall+=" -P "+config.get("postgres","port")
-        processcall+=" -U "+config.get("postgres","user")
-        processcall+=" -C "+config.get("osm2pgsql","cachesize")
-        processcall+=" -c  \""+os.path.abspath("tempdata/"+os.path.basename(osm_url))+"\""
-        print processcall
-        print "importiere OSM Daten in Datenbank, die kann lange Zeit dauern. Bitte Fenster offenlassen!"
-        p1 = subprocess.Popen(processcall,shell=True)
-        p1.wait()
-        print "Import beendet"
+        
+        #update 05.02.2019 
+        #multiple osm_urls possible, divided by semicolon
+        osm_urls=osm_url.split(";")
+        count=1
+        for osm_url in osm_urls:
+            if not os.path.isfile("tempdata/"+os.path.basename(osm_url)):
+                print "downloading OSM file"
+                download_file(osm_url,"tempdata/"+os.path.basename(osm_url))
+                print "Download abgeschlossen"
+            #import data
+            processcall=config.get("osm2pgsql","bin_path")
+            processcall+=" -d "+databasename
+            processcall+=" -S "+config.get("osm2pgsql","schema")
+            processcall+=" -k --hstore-match-only -r pbf -s"
+            processcall+=" -H "+config.get("postgres","host")
+            processcall+=" -P "+config.get("postgres","port")
+            processcall+=" -U "+config.get("postgres","user")
+            processcall+=" -C "+config.get("osm2pgsql","cachesize")
+            if count==1:
+                processcall+=" -c "
+            else:
+                processcall+=" -a "
+            processcall+="\""+os.path.abspath("tempdata/"+os.path.basename(osm_url))+"\""
+            print processcall
+            print "importiere OSM Daten in Datenbank, die kann lange Zeit dauern. Bitte Fenster offenlassen!"
+            p1 = subprocess.Popen(processcall,shell=True)
+            p1.wait()
+            print "Import beendet"
+            count+=1
 
 
 # In[6]:
@@ -216,7 +227,7 @@ def holeStandorte(config,bundesland,branche,dataset):
     r=requests.post(config.get("webservice","url"),
                     auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
                     data={"command":"fetchStandortData","suffix":dataset,"branche":branche,"bundesland":bundesland},
-                      proxies={'https': config.get("general","proxy_https")}
+                    proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")}
                    )
     if r.status_code == 200:
         data=json.loads(r.text)
@@ -434,15 +445,26 @@ print config.sections()
 # In[14]:
 
 
+openDataBaseServer(config)
+
+
+# In[18]:
+
+
+killDataBaseServer()
+
+
+# In[ ]:
+
+
 if config.get("general","proxy_https")!="":
        urllib2.install_opener(
            urllib2.build_opener(
-               urllib2.ProxyHandler({'https': config.get("general","proxy_https")})
+               urllib2.ProxyHandler({'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")})
            )
        )
-
 r=requests.post(config.get("webservice","url"),
-               proxies={'https': config.get("general","proxy_https")},
+               proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")},
                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
                data={"command":"fetchAllPrintingQueue"},
               )
@@ -452,7 +474,7 @@ if r.status_code == 200:
        print job
        generateMap(config,job['dataset'],str(job['bundesland']),str(job['branche']))
        r=requests.post(config.get("webservice","url"),
-               proxies={'https': config.get("general","proxy_https")},
+               proxies={'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")},
                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
                data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
               )
