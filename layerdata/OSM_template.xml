@@ -54394,28 +54394,28 @@ ORDER BY z_order asc ) AS building]]></Parameter>
   <Rule>
     <MaxScaleDenominator>5000</MaxScaleDenominator>
     <Filter>([highway] = 'motorway')</Filter>
-    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="9" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
+    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="7" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
     <TextSymbolizer size="14" fill="#000000" halo-fill="#ef9979" clip="false" fontset-name="fontset-0" halo-radius="1" placement="line" ><![CDATA[[name]]]></TextSymbolizer>
   </Rule>
   <Rule>
     <MaxScaleDenominator>25000</MaxScaleDenominator>
     <MinScaleDenominator>5000</MinScaleDenominator>
     <Filter>([highway] = 'motorway')</Filter>
-    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="9" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
+    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="7" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
     <TextSymbolizer size="12" fill="#000000" halo-fill="#ef9979" clip="false" fontset-name="fontset-0" halo-radius="1" placement="line" ><![CDATA[[name]]]></TextSymbolizer>
   </Rule>
   <Rule>
     <MaxScaleDenominator>100000</MaxScaleDenominator>
     <MinScaleDenominator>25000</MinScaleDenominator>
     <Filter>([highway] = 'motorway')</Filter>
-    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="9" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
+    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="7" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
     <TextSymbolizer size="11" fill="#000000" halo-fill="#ef9979" clip="false" fontset-name="fontset-0" halo-radius="1" placement="line" ><![CDATA[[name]]]></TextSymbolizer>
   </Rule>
   <Rule>
     <MaxScaleDenominator>200000</MaxScaleDenominator>
     <MinScaleDenominator>100000</MinScaleDenominator>
     <Filter>([highway] = 'motorway')</Filter>
-    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="9" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
+    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="7" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
     <TextSymbolizer fill="#000000" halo-fill="#ef9979" clip="false" fontset-name="fontset-0" halo-radius="1" placement="line" ><![CDATA[[name]]]></TextSymbolizer>
   </Rule>
   <Rule>
@@ -54423,7 +54423,7 @@ ORDER BY z_order asc ) AS building]]></Parameter>
     <MinScaleDenominator>200000</MinScaleDenominator>
     <Filter>([highway] = 'motorway')</Filter>
     <TextSymbolizer clip="false" fontset-name="fontset-0" halo-radius="1" placement="line" fill="#000000" ><![CDATA['']]></TextSymbolizer>
-    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="9" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
+    <ShieldSymbolizer face-name="Arial Black" fill="#ffffff" size="7" line-spacing="0" placement="line" spacing="1000" minimum-distance="65" clip="false" minimum-padding="20" file="$PATH/layerdata/motorway_3x1.svg" ><![CDATA[[ref]]]></ShieldSymbolizer>
   </Rule>
   <Rule>
     <MaxScaleDenominator>200000</MaxScaleDenominator>
