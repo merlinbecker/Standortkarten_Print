@@ -215,6 +215,17 @@ def printBounds(lon,lat,lon2,lat2):
 # In[7]:
 
 
+def schreibeInfos(infos):
+    out=""
+    for info in infos:
+       if len(info)>1:
+        out+=info+"\n"
+    return out
+
+
+# In[8]:
+
+
 def holeStandorte(config,bundesland,branche,dataset):
     csvfile='tempdata/standorte.csv'
     textfile='tempdata/uploads/text'+dataset+'_'+bundesland+'_'+branche+'.txt'
@@ -240,16 +251,23 @@ def holeStandorte(config,bundesland,branche,dataset):
             st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
             st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
             st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
-            st_text+=standort['Telefon']+"\n Fax:"+standort['Telefax']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n"
-            st_text+=standort['FabrikantderAnlage']+"\n"
-            st_text+=standort['LeistungderAnlage']+"\n"
-            st_text+=standort['Zugabevorrichtung']+"\n"
-            st_text+=standort['DurschnittlicheJahres']+"\n"
-            st_text+=standort['SonstigeAngaben']+"\n"
-            st_text+=standort['Mitgliedim']+"\n"
-            st_text+=standort['MitgliedimLandesverband']+"\n"
-            st_text+=standort['UeberwachtDurch']+"\n"
-            st_text+=standort['ZertifiziertNach']+"\n\n"
+            
+            st_text+=schreibeInfos(
+                [standort['Telefon'],
+                 "Fax:"+standort['Telefax'],
+                 standort['Email'],
+                 standort['Internet'],
+                 standort['FabrikantderAnlage'],
+                 standort['LeistungderAnlage'],
+                 standort['Zugabevorrichtung'],
+                 standort['DurschnittlicheJahres'],
+                 standort['SonstigeAngaben'],
+                 standort['Mitgliedim'],
+                 standort['MitgliedimLandesverband'],
+                 standort['UeberwachtDurch'],
+                 standort['ZertifiziertNach']])
+            st_text+="\n"
+            
             count+=1
     else:
         print "konnte Standorte nicht holen",r.status_code,r.text
@@ -273,16 +291,21 @@ def holeStandorte(config,bundesland,branche,dataset):
             st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
             st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
             st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
-            st_text+=standort['Telefon']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n"
-            st_text+=standort['FabrikantderAnlage']+"\n"
-            st_text+=standort['LeistungderAnlage']+"\n"
-            st_text+=standort['Zugabevorrichtung']+"\n"
-            st_text+=standort['DurschnittlicheJahres']+"\n"
-            st_text+=standort['SonstigeAngaben']+"\n"
-            st_text+=standort['Mitgliedim']+"\n"
-            st_text+=standort['MitgliedimLandesverband']+"\n"
-            st_text+=standort['UeberwachtDurch']+"\n"
-            st_text+=standort['ZertifiziertNach']+"\n\n"
+            st_text+=schreibeInfos(
+                [standort['Telefon'],
+                "Fax:"+standort['Telefax'],
+                standort['Email'],
+                standort['Internet'],
+                standort['FabrikantderAnlage'],
+                standort['LeistungderAnlage'],
+                standort['Zugabevorrichtung'],
+                standort['DurschnittlicheJahres'],
+                standort['SonstigeAngaben'],
+                standort['Mitgliedim'],
+                standort['MitgliedimLandesverband'],
+                standort['UeberwachtDurch'],
+                standort['ZertifiziertNach']])
+            st_text+="\n"
     else:
         print "konnte Standorte nicht holen",r.status_code,r.text
     st_text_file.write(st_text)
@@ -292,7 +315,7 @@ def holeStandorte(config,bundesland,branche,dataset):
     return os.path.abspath(csvfile),os.path.abspath(textfile)
 
 
-# In[8]:
+# In[9]:
 
 
 def getWerkeNachArt(werk):
@@ -308,7 +331,7 @@ def getWerkeNachArt(werk):
         return "Hauptwerk"
 
 
-# In[9]:
+# In[10]:
 
 
 def getBrancheById(branche):
@@ -325,7 +348,7 @@ def getBrancheById(branche):
         return "Transportbeton"
 
 
-# In[10]:
+# In[11]:
 
 
 def generateStyles(config,branche,bundesland,dataset):
@@ -359,7 +382,7 @@ def generateStyles(config,branche,bundesland,dataset):
     print "Stylefile written"  
 
 
-# In[11]:
+# In[12]:
 
 
 def checkAndClearFolder(path):
@@ -376,7 +399,7 @@ def checkAndClearFolder(path):
                 print(e)
 
 
-# In[12]:
+# In[13]:
 
 
 def generateMap(config,dataset,bundesland,branche):
@@ -466,7 +489,7 @@ def generateMap(config,dataset,bundesland,branche):
     
 
 
-# In[13]:
+# In[14]:
 
 
 stdout = sys.stdout
