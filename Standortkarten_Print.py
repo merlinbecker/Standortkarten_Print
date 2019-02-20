@@ -240,13 +240,54 @@ def holeStandorte(config,bundesland,branche,dataset):
             st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
             st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
             st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
-            st_text+=standort['Telefon']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n\n"
+            st_text+=standort['Telefon']+"\n Fax:"+standort['Telefax']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n"
+            st_text+=standort['FabrikantderAnlage']+"\n"
+            st_text+=standort['LeistungderAnlage']+"\n"
+            st_text+=standort['Zugabevorrichtung']+"\n"
+            st_text+=standort['DurschnittlicheJahres']+"\n"
+            st_text+=standort['SonstigeAngaben']+"\n"
+            st_text+=standort['Mitgliedim']+"\n"
+            st_text+=standort['MitgliedimLandesverband']+"\n"
+            st_text+=standort['UeberwachtDurch']+"\n"
+            st_text+=standort['ZertifiziertNach']+"\n\n"
             count+=1
     else:
         print "konnte Standorte nicht holen",r.status_code,r.text
     st_text_file.write(st_text)
     f.close()
     st_text_file.close()
+    
+    #update: nun auch Alphabetisch
+    textfile_alpha='tempdata/uploads/text_alphabet'+dataset+'_'+bundesland+'_'+branche+'.txt'
+    st_text_file=open(textfile_alpha,"wb")
+    st_text=""
+    r=requests.post(config.get("webservice","url"),
+                    auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                    data={"command":"fetchStandortData","sort_alphabetical":1,"suffix":dataset,"branche":branche,"bundesland":bundesland},
+                    proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")}
+                   )
+    if r.status_code == 200:
+        data=json.loads(r.text)
+        for standort in data['standorte']:
+            st_text+="#"+str(standort['id'])+" "
+            st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
+            st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
+            st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
+            st_text+=standort['Telefon']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n"
+            st_text+=standort['FabrikantderAnlage']+"\n"
+            st_text+=standort['LeistungderAnlage']+"\n"
+            st_text+=standort['Zugabevorrichtung']+"\n"
+            st_text+=standort['DurschnittlicheJahres']+"\n"
+            st_text+=standort['SonstigeAngaben']+"\n"
+            st_text+=standort['Mitgliedim']+"\n"
+            st_text+=standort['MitgliedimLandesverband']+"\n"
+            st_text+=standort['UeberwachtDurch']+"\n"
+            st_text+=standort['ZertifiziertNach']+"\n\n"
+    else:
+        print "konnte Standorte nicht holen",r.status_code,r.text
+    st_text_file.write(st_text)
+    st_text_file.close()
+    
     print "Standort CSV und Text geschrieben"
     return os.path.abspath(csvfile),os.path.abspath(textfile)
 
@@ -442,18 +483,6 @@ except:
 print config.sections()
 
 
-# In[14]:
-
-
-openDataBaseServer(config)
-
-
-# In[18]:
-
-
-killDataBaseServer()
-
-
 # In[ ]:
 
 
@@ -483,7 +512,7 @@ else:
    print "konnte Printqueue nicht holen",r.status_code,r.text
 
 
-# In[15]:
+# In[ ]:
 
 
 session = ftplib.FTP(config.get("ftp","host"),config.get("ftp","user"),config.get("ftp","passwd"))
@@ -492,7 +521,7 @@ session.set_pasv(1)
 for datei in os.listdir("tempdata/uploads"):
     print datei
     d = open("tempdata/uploads/"+datei,'rb')
-    session.storbinary("APPE "+datei,d,1)
+    session.storbinary("STOR "+datei,d,1)
     d.close()
     os.remove("tempdata/uploads/"+datei)
 session.quit()
