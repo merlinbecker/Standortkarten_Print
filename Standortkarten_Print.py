@@ -48,7 +48,7 @@ def openDataBaseServer(config):
         processcall+="-p "+config.get("postgres","port")
         
         subprocess.Popen(processcall,shell=True)
-        time.sleep(10)
+        time.sleep(60)
         #@todo check if really open!
         print("Datenbank offen!")
 def killDataBaseServer():
@@ -492,6 +492,22 @@ def generateMap(config,dataset,bundesland,branche):
 # In[14]:
 
 
+def uploadFiles():
+    session = ftplib.FTP(config.get("ftp","host"),config.get("ftp","user"),config.get("ftp","passwd"))
+    print session.getwelcome()
+    session.set_pasv(1)
+    for datei in os.listdir("tempdata/uploads"):
+        print datei
+        d = open("tempdata/uploads/"+datei,'rb')
+        session.storbinary("STOR "+datei,d,1)
+        d.close()
+        os.remove("tempdata/uploads/"+datei)
+    session.quit()
+
+
+# In[15]:
+
+
 stdout = sys.stdout
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -506,52 +522,33 @@ except:
 print config.sections()
 
 
-# In[ ]:
+# In[16]:
 
 
 if config.get("general","proxy_https")!="":
-       urllib2.install_opener(
-           urllib2.build_opener(
-               urllib2.ProxyHandler({'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")})
-           )
-       )
+    urllib2.install_opener(
+        urllib2.build_opener(
+            urllib2.ProxyHandler({'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")})
+        )
+    )
+print("fetching queue")
 r=requests.post(config.get("webservice","url"),
-               proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")},
-               auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
-               data={"command":"fetchAllPrintingQueue"},
-              )
+                proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")},
+                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                data={"command":"fetchAllPrintingQueue"},
+               )
 if r.status_code == 200:
-   queue=json.loads(r.text)
-   for job in queue:
-       print job
-       generateMap(config,job['dataset'],str(job['bundesland']),str(job['branche']))
-       r=requests.post(config.get("webservice","url"),
-               proxies={'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")},
-               auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
-               data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
-              )
-
+    queue=json.loads(r.text)
+    for job in queue:
+        print job
+        generateMap(config,job['dataset'],str(job['bundesland']),str(job['branche']))
+        r=requests.post(config.get("webservice","url"),
+                proxies={'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")},
+                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
+               )
+        uploadFiles()
 else:
-   print "konnte Printqueue nicht holen",r.status_code,r.text
-
-
-# In[ ]:
-
-
-session = ftplib.FTP(config.get("ftp","host"),config.get("ftp","user"),config.get("ftp","passwd"))
-print session.getwelcome()
-session.set_pasv(1)
-for datei in os.listdir("tempdata/uploads"):
-    print datei
-    d = open("tempdata/uploads/"+datei,'rb')
-    session.storbinary("STOR "+datei,d,1)
-    d.close()
-    os.remove("tempdata/uploads/"+datei)
-session.quit()
-
-
-# In[ ]:
-
-
-
+    print "konnte Printqueue nicht holen",r.status_code,r.text
+print "done"
 

@@ -1,0 +1,1 @@
+%cd%\Anaconda\python.exe %cd%\Standortkarten_Print.py
