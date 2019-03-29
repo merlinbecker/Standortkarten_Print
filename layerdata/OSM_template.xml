@@ -54118,7 +54118,7 @@ ORDER BY z_order asc ) AS building]]></Parameter>
        <Parameter name="port"><![CDATA[]]></Parameter>
        <Parameter name="table"><![CDATA[(SELECT way,place,name,population
   FROM planet_osm_point
-  WHERE place IN ('city','metropolis','town','large_town','small_town')  AND cast(population as int)>28000) AS placenames]]></Parameter>
+  WHERE place IN ('city','metropolis','town','large_town','small_town')  AND cast(population as float)>28000) AS placenames]]></Parameter>
        <Parameter name="type"><![CDATA[postgis]]></Parameter>
        <Parameter name="user"><![CDATA[]]></Parameter>
        <Parameter name="id"><![CDATA[placenames-medium]]></Parameter>
