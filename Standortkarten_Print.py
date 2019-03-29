@@ -48,7 +48,7 @@ def openDataBaseServer(config):
         processcall+="-p "+config.get("postgres","port")
         
         subprocess.Popen(processcall,shell=True)
-        time.sleep(10)
+        time.sleep(60)
         #@todo check if really open!
         print("Datenbank offen!")
 def killDataBaseServer():
@@ -215,6 +215,17 @@ def printBounds(lon,lat,lon2,lat2):
 # In[7]:
 
 
+def schreibeInfos(infos):
+    out=""
+    for info in infos:
+       if len(info)>1:
+        out+=info+"\n"
+    return out
+
+
+# In[8]:
+
+
 def holeStandorte(config,bundesland,branche,dataset):
     csvfile='tempdata/standorte.csv'
     textfile='tempdata/uploads/text'+dataset+'_'+bundesland+'_'+branche+'.txt'
@@ -240,18 +251,71 @@ def holeStandorte(config,bundesland,branche,dataset):
             st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
             st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
             st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
-            st_text+=standort['Telefon']+"\n"+standort['Email']+"\n"+standort['Internet']+"\n\n"
+            
+            st_text+=schreibeInfos(
+                [standort['Telefon'],
+                 "Fax:"+standort['Telefax'],
+                 standort['Email'],
+                 standort['Internet'],
+                 standort['FabrikantderAnlage'],
+                 standort['LeistungderAnlage'],
+                 standort['Zugabevorrichtung'],
+                 standort['DurschnittlicheJahres'],
+                 standort['SonstigeAngaben'],
+                 standort['Mitgliedim'],
+                 standort['MitgliedimLandesverband'],
+                 standort['UeberwachtDurch'],
+                 standort['ZertifiziertNach']])
+            st_text+="\n"
+            
             count+=1
     else:
         print "konnte Standorte nicht holen",r.status_code,r.text
     st_text_file.write(st_text)
     f.close()
     st_text_file.close()
+    
+    #update: nun auch Alphabetisch
+    textfile_alpha='tempdata/uploads/text_alphabet'+dataset+'_'+bundesland+'_'+branche+'.txt'
+    st_text_file=open(textfile_alpha,"wb")
+    st_text=""
+    r=requests.post(config.get("webservice","url"),
+                    auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                    data={"command":"fetchStandortData","sort_alphabetical":1,"suffix":dataset,"branche":branche,"bundesland":bundesland},
+                    proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")}
+                   )
+    if r.status_code == 200:
+        data=json.loads(r.text)
+        for standort in data['standorte']:
+            st_text+="#"+str(standort['id'])+" "
+            st_text+="("+getWerkeNachArt(standort['Art'])+")\n"
+            st_text+=standort['Name1']+" "+standort['Name2']+" "+standort['Name3']+"\n"
+            st_text+=standort['Strasse']+"\n"+standort['PLZStrasse']+" "+standort['Ort']+"\n"
+            st_text+=schreibeInfos(
+                [standort['Telefon'],
+                "Fax:"+standort['Telefax'],
+                standort['Email'],
+                standort['Internet'],
+                standort['FabrikantderAnlage'],
+                standort['LeistungderAnlage'],
+                standort['Zugabevorrichtung'],
+                standort['DurschnittlicheJahres'],
+                standort['SonstigeAngaben'],
+                standort['Mitgliedim'],
+                standort['MitgliedimLandesverband'],
+                standort['UeberwachtDurch'],
+                standort['ZertifiziertNach']])
+            st_text+="\n"
+    else:
+        print "konnte Standorte nicht holen",r.status_code,r.text
+    st_text_file.write(st_text)
+    st_text_file.close()
+    
     print "Standort CSV und Text geschrieben"
     return os.path.abspath(csvfile),os.path.abspath(textfile)
 
 
-# In[8]:
+# In[9]:
 
 
 def getWerkeNachArt(werk):
@@ -267,7 +331,7 @@ def getWerkeNachArt(werk):
         return "Hauptwerk"
 
 
-# In[9]:
+# In[10]:
 
 
 def getBrancheById(branche):
@@ -284,7 +348,7 @@ def getBrancheById(branche):
         return "Transportbeton"
 
 
-# In[10]:
+# In[11]:
 
 
 def generateStyles(config,branche,bundesland,dataset):
@@ -318,7 +382,7 @@ def generateStyles(config,branche,bundesland,dataset):
     print "Stylefile written"  
 
 
-# In[11]:
+# In[12]:
 
 
 def checkAndClearFolder(path):
@@ -335,7 +399,7 @@ def checkAndClearFolder(path):
                 print(e)
 
 
-# In[12]:
+# In[13]:
 
 
 def generateMap(config,dataset,bundesland,branche):
@@ -425,7 +489,23 @@ def generateMap(config,dataset,bundesland,branche):
     
 
 
-# In[13]:
+# In[14]:
+
+
+def uploadFiles():
+    session = ftplib.FTP(config.get("ftp","host"),config.get("ftp","user"),config.get("ftp","passwd"))
+    print session.getwelcome()
+    session.set_pasv(1)
+    for datei in os.listdir("tempdata/uploads"):
+        print datei
+        d = open("tempdata/uploads/"+datei,'rb')
+        session.storbinary("STOR "+datei,d,1)
+        d.close()
+        os.remove("tempdata/uploads/"+datei)
+    session.quit()
+
+
+# In[15]:
 
 
 stdout = sys.stdout
@@ -442,64 +522,33 @@ except:
 print config.sections()
 
 
-# In[14]:
-
-
-openDataBaseServer(config)
-
-
-# In[18]:
-
-
-killDataBaseServer()
-
-
-# In[ ]:
+# In[16]:
 
 
 if config.get("general","proxy_https")!="":
-       urllib2.install_opener(
-           urllib2.build_opener(
-               urllib2.ProxyHandler({'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")})
-           )
-       )
+    urllib2.install_opener(
+        urllib2.build_opener(
+            urllib2.ProxyHandler({'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")})
+        )
+    )
+print("fetching queue")
 r=requests.post(config.get("webservice","url"),
-               proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")},
-               auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
-               data={"command":"fetchAllPrintingQueue"},
-              )
+                proxies={'https': config.get("general","proxy_https"),'http': config.get("general","proxy_https")},
+                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                data={"command":"fetchAllPrintingQueue"},
+               )
 if r.status_code == 200:
-   queue=json.loads(r.text)
-   for job in queue:
-       print job
-       generateMap(config,job['dataset'],str(job['bundesland']),str(job['branche']))
-       r=requests.post(config.get("webservice","url"),
-               proxies={'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")},
-               auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
-               data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
-              )
-
+    queue=json.loads(r.text)
+    for job in queue:
+        print job
+        generateMap(config,job['dataset'],str(job['bundesland']),str(job['branche']))
+        r=requests.post(config.get("webservice","url"),
+                proxies={'http': config.get("general","proxy_https"),'https': config.get("general","proxy_https")},
+                auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
+                data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
+               )
+        uploadFiles()
 else:
-   print "konnte Printqueue nicht holen",r.status_code,r.text
-
-
-# In[15]:
-
-
-session = ftplib.FTP(config.get("ftp","host"),config.get("ftp","user"),config.get("ftp","passwd"))
-print session.getwelcome()
-session.set_pasv(1)
-for datei in os.listdir("tempdata/uploads"):
-    print datei
-    d = open("tempdata/uploads/"+datei,'rb')
-    session.storbinary("APPE "+datei,d,1)
-    d.close()
-    os.remove("tempdata/uploads/"+datei)
-session.quit()
-
-
-# In[ ]:
-
-
-
+    print "konnte Printqueue nicht holen",r.status_code,r.text
+print "done"
 
