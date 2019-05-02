@@ -59,7 +59,7 @@ def initDataBaseServer(config):
     if os.path.isdir(config.get("postgres","db_dir"))==False:
         print "Datenbank ist nicht eingerichtet, richte ein!"
         processcall=config.get("postgres","bin_dir")
-        processcall+="/bin/initdb --locale=German_Germany.1252 --encoding=UTF8 "
+        processcall+="/bin/initdb --locale=German_Germany.1252 --encoding=UTF8 -A trust "
         processcall+=config.get("postgres","db_dir")
         p1 = subprocess.Popen(processcall,shell=True)
         p1.wait()
@@ -402,7 +402,7 @@ def checkAndClearFolder(path):
 # In[13]:
 
 
-def generateMap(config,dataset,bundesland,branche):
+echt ärgerlich, ich hätte den richdef generateMap(config,dataset,bundesland,branche):
     
     checkDataBase(config,config.get(bundesland,"osm_url"),config.get(bundesland,"db_name"))
     openDataBaseServer(config)
@@ -410,6 +410,7 @@ def generateMap(config,dataset,bundesland,branche):
     checkAndClearFolder(path_temp_files)
     generateStyles(config,branche,bundesland,dataset)
     #import mapnik
+    sys.path.append(config.get("mapnik","dllpath")) 
     sys.path.append(config.get("mapnik","pythonPath")) 
     import mapnik
     kartenscale=6
@@ -547,7 +548,7 @@ if r.status_code == 200:
                 auth=HTTPBasicAuth(config.get("webservice","username"),config.get("webservice","password")),
                 data={"command":"setPrintingDone","suffix":job['dataset'],"branche":job['branche'],"bundesland":job['bundesland']},
                )
-        uploadFiles()
+        #uploadFiles()
 else:
     print "konnte Printqueue nicht holen",r.status_code,r.text
 print "done"
